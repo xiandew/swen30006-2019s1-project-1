@@ -103,6 +103,7 @@ public class Simulation {
             try {
                 automail.mailPool.step();
 				for (int i=0; i<robots; i++) automail.robots[i].step();
+				for (RobotTeam robotTeam : automail.robotTeams) robotTeam.step();
 			} catch (ExcessiveDeliveryException|ItemTooHeavyException e) {
 				e.printStackTrace();
 				System.out.println("Simulation unable to complete.");

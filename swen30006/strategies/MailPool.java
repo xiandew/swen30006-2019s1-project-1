@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import automail.MailItem;
 import automail.PriorityMailItem;
 import automail.Robot;
+import automail.RobotTeam;
 import exceptions.ItemTooHeavyException;
 
 public class MailPool implements IMailPool {
@@ -43,11 +44,13 @@ public class MailPool implements IMailPool {
 	
 	private LinkedList<Item> pool;
 	private LinkedList<Robot> robots;
+	private RobotTeam robotTeam;
 
 	public MailPool(int nrobots){
 		// Start empty
 		pool = new LinkedList<Item>();
 		robots = new LinkedList<Robot>();
+		robotTeam = new RobotTeam();
 	}
 
 	public void addToPool(MailItem mailItem) {
@@ -58,12 +61,61 @@ public class MailPool implements IMailPool {
 	
 	@Override
 	public void step() throws ItemTooHeavyException {
+		boolean teamRequired = false;
 		try{
 			ListIterator<Robot> i = robots.listIterator();
 			while (i.hasNext()) loadRobot(i);
-		} catch (Exception e) { 
-            throw e; 
-        } 
+		} catch (Exception e) {
+			teamRequired = true;
+        }
+		if (teamRequired) {
+			try {
+				loadRobotTeam();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void loadRobotTeam() throws Exception {
+		Robot frontRobot = robots.getFirst();
+		/** if the front robot has got a MailItem in its hand */
+		if (!frontRobot.isEmpty()) {
+			frontRobot.dispatch();
+			robots.removeLast();
+		}
+		
+		MailItem currMailItem = pool.getFirst().mailItem;
+		/** if the mailItem is way too heavy */
+		if (currMailItem.getWeight() > Robot.TRIPLE_MAX_WEIGHT) {
+			throw new ItemTooHeavyException();
+		}
+		
+		boolean enoughWaitingRobots = false;
+		
+		/** add robots to a team */
+		robotTeam.addMember(frontRobot);
+		for (Robot robot : robots) {
+			robotTeam.addMember(robot);
+			if (robotTeam.getWeightCapacity() >= currMailItem.getWeight()) {
+				enoughWaitingRobots = true;
+				break;
+			}
+		}
+		
+		/** if there are enough free robots to carry the front mailItem */
+		if (enoughWaitingRobots) {
+			/** remove the front mailItem */
+			pool.removeFirst();
+			
+			/** add the front mailItem to team's hands. 
+			 * When carrying as a team, each robot will not carry in their tube.
+			 */
+			robotTeam.addToHands(currMailItem);
+			
+			robotTeam.dispatch();
+			robotTeam.removeFromPool(pool);
+		}
 	}
 	
 	private void loadRobot(ListIterator<Robot> i) throws ItemTooHeavyException {

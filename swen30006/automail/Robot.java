@@ -173,14 +173,14 @@ public class Robot {
 
 	public void addToHand(MailItem mailItem) throws ItemTooHeavyException {
 		assert(deliveryItem == null);
+		if (mailItem.weight > INDIVIDUAL_MAX_WEIGHT) throw new ItemTooHeavyException();
 		deliveryItem = mailItem;
-		if (deliveryItem.weight > INDIVIDUAL_MAX_WEIGHT) throw new ItemTooHeavyException();
 	}
 
 	public void addToTube(MailItem mailItem) throws ItemTooHeavyException {
 		assert(tube == null);
+		if (mailItem.weight > INDIVIDUAL_MAX_WEIGHT) throw new ItemTooHeavyException();
 		tube = mailItem;
-		if (tube.weight > INDIVIDUAL_MAX_WEIGHT) throw new ItemTooHeavyException();
 	}
 
 }
