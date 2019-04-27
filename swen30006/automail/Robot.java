@@ -27,6 +27,7 @@ public class Robot {
     
     private MailItem deliveryItem = null;
     private MailItem tube = null;
+    private RobotTeam team = null;
     
     private int deliveryCounter;
     
@@ -57,7 +58,16 @@ public class Robot {
      * This is called on every time step
      * @throws ExcessiveDeliveryException if robot delivers more than the capacity of the tube without refilling
      */
-    public void step() throws ExcessiveDeliveryException {    	
+    public void step() throws ExcessiveDeliveryException {
+    	/** if the robot is in a team */
+    	if (team != null) {
+			/** make sure team.step() is only called once for one time step */
+			if (team.getMemebers().indexOf(this) == 0) {
+				team.step();
+			}
+			return;
+    	}
+    	
     	switch(current_state) {
     		/** This state is triggered when the robot is returning to the mailroom after a delivery */
     		case RETURNING:
@@ -125,12 +135,16 @@ public class Robot {
      * Generic function that moves the robot towards the destination
      * @param destination the floor towards which the robot is moving
      */
-    private void moveTowards(int destination) {
+    public void moveTowards(int destination) {
         if(current_floor < destination){
             current_floor++;
         } else {
             current_floor--;
         }
+    }
+    
+    public int getCurrentFloor() {
+    	return current_floor;
     }
     
     private String getIdTube() {
@@ -182,5 +196,14 @@ public class Robot {
 		if (mailItem.weight > INDIVIDUAL_MAX_WEIGHT) throw new ItemTooHeavyException();
 		tube = mailItem;
 	}
-
+	
+	public void registerTeam(RobotTeam team) {
+		this.team = team;
+		changeState(RobotState.DELIVERING);
+	}
+	
+	public void unregisterTeam() {
+		assert(team != null);
+		team = null;
+	}
 }

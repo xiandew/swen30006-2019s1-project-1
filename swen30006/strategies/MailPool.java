@@ -44,13 +44,11 @@ public class MailPool implements IMailPool {
 	
 	private LinkedList<Item> pool;
 	private LinkedList<Robot> robots;
-	private RobotTeam robotTeam;
 
 	public MailPool(int nrobots){
 		// Start empty
 		pool = new LinkedList<Item>();
 		robots = new LinkedList<Robot>();
-		robotTeam = new RobotTeam();
 	}
 
 	public void addToPool(MailItem mailItem) {
@@ -91,13 +89,14 @@ public class MailPool implements IMailPool {
 			throw new ItemTooHeavyException();
 		}
 		
+		RobotTeam team = new RobotTeam();
 		boolean enoughWaitingRobots = false;
 		
 		/** add robots to a team */
-		robotTeam.addMember(frontRobot);
+		team.addMember(frontRobot);
 		for (Robot robot : robots) {
-			robotTeam.addMember(robot);
-			if (robotTeam.getWeightCapacity() >= currMailItem.getWeight()) {
+			team.addMember(robot);
+			if (team.getWeightCapacity() >= currMailItem.getWeight()) {
 				enoughWaitingRobots = true;
 				break;
 			}
@@ -108,13 +107,16 @@ public class MailPool implements IMailPool {
 			/** remove the front mailItem */
 			pool.removeFirst();
 			
+			/** remove robots in the team */
+			for (Robot robot : team.getMemebers()) {
+				robots.remove(robot);
+			}
+			
 			/** add the front mailItem to team's hands. 
 			 * When carrying as a team, each robot will not carry in their tube.
 			 */
-			robotTeam.addToHands(currMailItem);
-			
-			robotTeam.dispatch();
-			robotTeam.removeFromPool(pool);
+			team.addToHands(currMailItem);
+			team.dispatch();
 		}
 	}
 	
