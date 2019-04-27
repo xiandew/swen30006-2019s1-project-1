@@ -106,7 +106,7 @@ public class MailPool implements IMailPool {
 			/** remove the front mailItem */
 			pool.removeFirst();
 			
-			/** remove robots in the team */
+			/** remove robots from pool */
 			for (Robot robot : team.getMemebers()) {
 				robots.remove(robot);
 			}
