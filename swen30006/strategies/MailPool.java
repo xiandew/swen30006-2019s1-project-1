@@ -70,17 +70,17 @@ public class MailPool implements IMailPool {
 			try {
 				loadRobotTeam();
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw e;
 			}
 		}
 	}
 	
-	private void loadRobotTeam() throws Exception {
+	private void loadRobotTeam() throws ItemTooHeavyException {
 		Robot frontRobot = robots.getFirst();
 		/** if the front robot has got a MailItem in its hand */
 		if (!frontRobot.isEmpty()) {
 			frontRobot.dispatch();
-			robots.removeLast();
+			robots.remove(frontRobot);
 		}
 		
 		MailItem currMailItem = pool.getFirst().mailItem;
@@ -93,7 +93,6 @@ public class MailPool implements IMailPool {
 		boolean enoughWaitingRobots = false;
 		
 		/** add robots to a team */
-		team.addMember(frontRobot);
 		for (Robot robot : robots) {
 			team.addMember(robot);
 			if (team.getWeightCapacity() >= currMailItem.getWeight()) {

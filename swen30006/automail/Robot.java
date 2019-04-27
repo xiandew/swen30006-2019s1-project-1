@@ -161,7 +161,7 @@ public class Robot {
             System.out.printf("T: %3d > %7s changed from %s to %s%n", Clock.Time(), getIdTube(), current_state, nextState);
     	}
     	current_state = nextState;
-    	if(nextState == RobotState.DELIVERING){
+    	if(nextState == RobotState.DELIVERING && team == null){
             System.out.printf("T: %3d > %7s-> [%s]%n", Clock.Time(), getIdTube(), deliveryItem.toString());
     	}
     }
@@ -205,5 +205,6 @@ public class Robot {
 	public void unregisterTeam() {
 		assert(team != null);
 		team = null;
+		changeState(RobotState.RETURNING);
 	}
 }
