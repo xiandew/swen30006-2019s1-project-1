@@ -135,8 +135,8 @@ public class MailPool implements IMailPool {
 			robot.dispatch(); // send the robot off if it has any items to deliver
 			i.remove();       // remove from mailPool queue
 			} catch (Exception e) { 
-	            throw e; 
-	        } 
+				throw e; 
+			} 
 		}
 	}
 

@@ -53,16 +53,16 @@ public class RobotTeam {
 		}
 		setRoute();
 		lastMoveTime = Clock.Time();
-		System.out.printf("T: %3d > %7s-> [%s]%n", Clock.Time(), this, deliveryItem.toString());
+		System.out.printf("T: %3d > %s-> [%s]%n", Clock.Time(), this, deliveryItem.toString());
 	}
 	
 	/**
-     * Sets the route for the team
-     */
-    private void setRoute() {
-        /** Set the destination floor */
-        destination_floor = deliveryItem.getDestFloor();
-    }
+	 * Sets the route for the team
+	 */
+	private void setRoute() {
+	    /** Set the destination floor */
+	    destination_floor = deliveryItem.getDestFloor();
+	}
 	
 	public String toString() {
 		String team_id = " ";
