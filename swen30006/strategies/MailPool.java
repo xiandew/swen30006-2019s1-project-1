@@ -17,14 +17,14 @@ public class MailPool implements IMailPool {
 		int destination;
 		MailItem mailItem;
 		// Use stable sort to keep arrival time relative positions
-		
+
 		public Item(MailItem mailItem) {
 			priority = (mailItem instanceof PriorityMailItem) ? ((PriorityMailItem) mailItem).getPriorityLevel() : 1;
 			destination = mailItem.getDestFloor();
 			this.mailItem = mailItem;
 		}
 	}
-	
+
 	public class ItemComparator implements Comparator<Item> {
 		@Override
 		public int compare(Item i1, Item i2) {
@@ -41,11 +41,11 @@ public class MailPool implements IMailPool {
 			return order;
 		}
 	}
-	
+
 	private LinkedList<Item> pool;
 	private LinkedList<Robot> robots;
 
-	public MailPool(int nrobots){
+	public MailPool(int nrobots) {
 		// Start empty
 		pool = new LinkedList<Item>();
 		robots = new LinkedList<Robot>();
@@ -56,16 +56,17 @@ public class MailPool implements IMailPool {
 		pool.add(item);
 		pool.sort(new ItemComparator());
 	}
-	
+
 	@Override
 	public void step() throws ItemTooHeavyException {
 		boolean teamRequired = false;
-		try{
+		try {
 			ListIterator<Robot> i = robots.listIterator();
-			while (i.hasNext()) loadRobot(i);
+			while (i.hasNext())
+				loadRobot(i);
 		} catch (Exception e) {
 			teamRequired = true;
-        }
+		}
 		if (teamRequired) {
 			try {
 				loadRobotTeam();
@@ -74,7 +75,7 @@ public class MailPool implements IMailPool {
 			}
 		}
 	}
-	
+
 	private void loadRobotTeam() throws ItemTooHeavyException {
 		Robot frontRobot = robots.getFirst();
 		/** if the front robot has got a MailItem in its hand */
@@ -82,16 +83,16 @@ public class MailPool implements IMailPool {
 			frontRobot.dispatch();
 			robots.remove(frontRobot);
 		}
-		
+
 		MailItem currMailItem = pool.getFirst().mailItem;
 		/** if the mailItem is way too heavy */
 		if (currMailItem.getWeight() > Robot.TRIPLE_MAX_WEIGHT) {
 			throw new ItemTooHeavyException();
 		}
-		
+
 		RobotTeam team = new RobotTeam();
 		boolean enoughWaitingRobots = false;
-		
+
 		/** add robots to a team */
 		for (Robot robot : robots) {
 			team.addMember(robot);
@@ -100,43 +101,44 @@ public class MailPool implements IMailPool {
 				break;
 			}
 		}
-		
+
 		/** if there are enough free robots to carry the front mailItem */
 		if (enoughWaitingRobots) {
 			/** remove the front mailItem */
 			pool.removeFirst();
-			
+
 			/** remove robots from pool */
 			for (Robot robot : team.getMemebers()) {
 				robots.remove(robot);
 			}
-			
-			/** add the front mailItem to team's hands. 
-			 * When carrying as a team, each robot will not carry in their tube.
+
+			/**
+			 * add the front mailItem to team's hands. When carrying as a team, each robot
+			 * will not carry in their tube.
 			 */
 			team.addToHands(currMailItem);
 			team.dispatch();
 		}
 	}
-	
+
 	private void loadRobot(ListIterator<Robot> i) throws ItemTooHeavyException {
 		Robot robot = i.next();
-		assert(robot.isEmpty());
+		assert (robot.isEmpty());
 		// System.out.printf("P: %3d%n", pool.size());
 		ListIterator<Item> j = pool.listIterator();
 		if (pool.size() > 0) {
 			try {
-			robot.addToHand(j.next().mailItem); // hand first as we want higher priority delivered first
-			j.remove();
-			if (pool.size() > 0) {
-				robot.addToTube(j.next().mailItem);
+				robot.addToHand(j.next().mailItem); // hand first as we want higher priority delivered first
 				j.remove();
+				if (pool.size() > 0) {
+					robot.addToTube(j.next().mailItem);
+					j.remove();
+				}
+				robot.dispatch(); // send the robot off if it has any items to deliver
+				i.remove(); // remove from mailPool queue
+			} catch (Exception e) {
+				throw e;
 			}
-			robot.dispatch(); // send the robot off if it has any items to deliver
-			i.remove();       // remove from mailPool queue
-			} catch (Exception e) { 
-				throw e; 
-			} 
 		}
 	}
 
