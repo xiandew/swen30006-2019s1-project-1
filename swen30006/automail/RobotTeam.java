@@ -2,6 +2,9 @@ package automail;
 
 import java.util.ArrayList;
 
+/**
+ * RobotTeam is responsible for delivering heavy mails.
+ */
 public class RobotTeam {
 	private ArrayList<Robot> members = null;
 	private MailItem deliveryItem = null;
@@ -44,10 +47,18 @@ public class RobotTeam {
 		current_floor = members.get(0).getCurrentFloor();
 	}
 
+	/**
+	 * Assign mail item to the team
+	 * 
+	 * @param mailItem the item to deliver
+	 */
 	public void addToHands(MailItem mailItem) {
 		deliveryItem = mailItem;
 	}
 
+	/**
+	 * send the team off
+	 */
 	public void dispatch() {
 		for (Robot member : members) {
 			member.registerTeam(this);
@@ -79,8 +90,10 @@ public class RobotTeam {
 
 	public int getWeightCapacity() {
 		assert (members.size() <= 3);
-		return members.size() == 1 ? Robot.INDIVIDUAL_MAX_WEIGHT
-				: members.size() == 2 ? Robot.PAIR_MAX_WEIGHT : members.size() == 3 ? Robot.TRIPLE_MAX_WEIGHT : -1;
+		return 
+				members.size() == 1 ? Robot.INDIVIDUAL_MAX_WEIGHT :
+				members.size() == 2 ? Robot.PAIR_MAX_WEIGHT :
+				members.size() == 3 ? Robot.TRIPLE_MAX_WEIGHT : -1;
 	}
 
 	public ArrayList<Robot> getMemebers() {

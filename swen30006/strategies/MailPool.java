@@ -76,6 +76,12 @@ public class MailPool implements IMailPool {
 		}
 	}
 
+	/**
+	 * Assign heavy mail items to a robot team.
+	 * 
+	 * @throws ItemTooHeavyException when the mail item is too heavy for
+	 * team of three.
+	 */
 	private void loadRobotTeam() throws ItemTooHeavyException {
 		Robot frontRobot = robots.getFirst();
 		/** if the front robot has got a MailItem in its hand */
